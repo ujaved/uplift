@@ -15,15 +15,16 @@ def skill_test_any(v: List[str], skills_to_search: Tuple[str]) -> bool:
             return True
     return False
 
+
 def skill_test_all(v: List[str], skills_to_search: Tuple[str]) -> bool:
     val = set([x.lower().strip() for x in v])
     for s in skills_to_search:
         if s.lower().strip() not in val:
             return False
     return True
-    
 
-def buildQuery(params: Dict) -> Query:
+
+def build_query(params: Dict) -> Query:
     q = Query().noop()
     for k, v in params.items():
         qu = (Query()[k] == v)
@@ -61,7 +62,7 @@ def buildQuery(params: Dict) -> Query:
     return q
 
 
-def processQueryParams(params: Dict) -> Tuple[int, int, List]:
+def process_query_params(params: Dict) -> Tuple[int, int, List]:
     for k in params:
         if params[k].lower() == 'true':
             params[k] = True
@@ -75,10 +76,11 @@ def processQueryParams(params: Dict) -> Tuple[int, int, List]:
 
     page = 1
     results_per_page = -1
-    if 'page' in params and 'results_per_page' in params:
+    if 'page' in params:
         page = int(params['page'])
         params.pop('page')
 
+    if 'results_per_page' in params:
         results_per_page = int(params['results_per_page'])
         params.pop('results_per_page')
 
@@ -100,10 +102,11 @@ except OSError:
 
 db = TinyDB(db_fname)
 
-with open(os.getenv("PROVIDERS_FILEPATH"), "r") as f:
-    data = json.load(f)
-for entry in data:
-    db.insert(entry)
+if os.getenv("PROVIDERS_FILEPATH"):
+    with open(os.getenv("PROVIDERS_FILEPATH"), "r") as f:
+        data = json.load(f)
+    for entry in data:
+        db.insert(entry)
 
 record_counts = defaultdict(lambda: 0)
 
@@ -111,9 +114,10 @@ record_counts = defaultdict(lambda: 0)
 @app.route('/providers', methods=['GET'])
 def providers():
     params = request.args.to_dict()
-    page, results_per_page, sort_keys = processQueryParams(params)
+    page, results_per_page, sort_keys = process_query_params(params)
 
-    q = buildQuery(params)
+    print(params)
+    q = build_query(params)
     res = db.search(q)
     total_results = len(res)
 
