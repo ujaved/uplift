@@ -32,3 +32,11 @@ def test_build_query():
         Query().noop() & (Query().country == 'China') & (Query().sex == 'Male') & (Query().active == 1.0) & (Query().rating >= 8.0))
     assert server.build_query({'country': 'China', 'sex': 'Male', 'active': True, 'rating': 'lt:5', 'primary_skills': 'all:a,b'}) == (
         Query().noop() & (Query().country == 'China') & (Query().sex == 'Male') & (Query().active == 1.0) & (Query().rating < 5) & (Query().primary_skills.test(server.skill_test_all, ('a', 'b'))))
+
+
+def test_sort_results():
+    results = [{'a': 'female', 'b': 'male', 'c': 7},
+               {'a': 'female', 'b': 'amale', 'c': 5}]
+    server.sort_results(results, [['b', 'asc'], ['c', 'desc']])
+    assert results == [{'a': 'female', 'b': 'amale', 'c': 5}, {
+        'a': 'female', 'b': 'male', 'c': 7}]

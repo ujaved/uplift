@@ -91,6 +91,11 @@ def process_query_params(params: Dict) -> Tuple[int, int, List]:
 
     return (page, results_per_page, sort_keys)
 
+def sort_results(results: List, sort_keys: List[Tuple[str,str]]):
+    for k in sort_keys[::-1]:
+        results.sort(key=lambda x: x[k[0]],
+                 reverse=True if len(k) > 1 and k[1] == 'desc' else False)
+
 
 app = Flask(__name__)
 db_fname = "db.json"
@@ -116,7 +121,6 @@ def providers():
     params = request.args.to_dict()
     page, results_per_page, sort_keys = process_query_params(params)
 
-    print(params)
     q = build_query(params)
     res = db.search(q)
     total_results = len(res)
@@ -125,9 +129,7 @@ def providers():
         record_counts[r['id']] += 1
         r['query_count'] = record_counts[r['id']]
 
-    for k in sort_keys[::-1]:
-        res.sort(key=lambda x: x[k[0]],
-                 reverse=True if len(k) > 1 and k[1] == 'desc' else False)
+    sort_results(res, sort_keys)
 
     if results_per_page == -1:
         results_per_page = len(res)
