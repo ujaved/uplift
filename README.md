@@ -12,8 +12,9 @@ REST API
 ---------------
 ---------------
 
-The REST API has a single `GET` endpoint: `/providers` that searches a [tinydb](https://github.com/msiemens/tinydb) with queries built from the request parameters.
+The REST API has a single `GET` endpoint: `/providers` that searches a [tinydb](https://github.com/msiemens/tinydb) instance with queries built from the request parameters.
 The response is of the form
+
 `
 {
   content: [], // all retrieved records will go in this array
